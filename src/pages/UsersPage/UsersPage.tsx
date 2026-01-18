@@ -1,5 +1,6 @@
 import React, { useState,} from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useDebounce } from '@/hooks/useDebounce';
 import {
   Box,
   Typography,
@@ -53,6 +54,7 @@ export const UsersPage: React.FC = () => {
   const statusFromUrl = 
             searchParams.get('status') as 'all' | 'active' | 'inactive';
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [statusFilter, setStatusFilter] =
   useState<'all' | 'active' | 'inactive'>(statusFromUrl || 'all');
 
@@ -82,7 +84,7 @@ const [pagination, setPagination] = useState<MRT_PaginationState>({
   const { data, isLoading, error } = useUsers({
     page: pagination.pageIndex + 1,
     pageSize: pagination.pageSize,
-    query: searchQuery, // BUG: This updates on every keystroke
+    query: debouncedSearchQuery, // BUG: This updates on every keystroke
     status: statusFilter,
   });
 
