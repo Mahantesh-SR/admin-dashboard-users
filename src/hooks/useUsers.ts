@@ -37,16 +37,56 @@ export const useUpdateUserStatus = () => {
       status: 'active' | 'inactive';
     }) => updateUserStatus(userId, status),
 
-    onSuccess: () => {
-      // ✅ FIX: Invalidate all users queries
-      queryClient.invalidateQueries({
+    onMutate: async ({ userId, status }) => {
+      
+      await queryClient.cancelQueries({ queryKey: userQueryKeys.all }); 
+      
+      const previousQueries = queryClient.getQueriesData({
         queryKey: userQueryKeys.all,
       });
 
-      console.log('User status updated su ccessfully');
+      
+      queryClient.setQueriesData(
+        { queryKey: userQueryKeys.all },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              users: oldData.data.users.map((user: any) =>
+                user.id === userId
+                  ? { ...user, status }
+                  : user
+              ),
+            },
+          };
+        }
+      );
+
+      
+      return { previousQueries };
+    },
+
+    
+    onError: (_error, _variables, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+
+    
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: userQueryKeys.all,
+      });
     },
   });
 };
+
 
 /**
  * Hook to manually invalidate users cache
