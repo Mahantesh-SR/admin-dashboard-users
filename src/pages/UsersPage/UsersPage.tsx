@@ -1,6 +1,7 @@
 import React, { useState,} from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebounce } from '@/hooks/useDebounce';
+import { UsersTableSkeleton } from '@/components/UsersTableSkeleton';
 import {
   Box,
   Typography,
@@ -221,15 +222,19 @@ const [pagination, setPagination] = useState<MRT_PaginationState>({
 
       {/* Users Table */}
       <Paper>
-        <DynamicGrid
-          data={usersWithActions}
-          columns={columnsWithActions}
-          isLoading={isLoading}
-          totalCount={data?.data?.totalCount || 0}
-          pagination={pagination}
-          onPaginationChange={handlePaginationChange}
-        />
-      </Paper>
+      {isLoading ? (
+        <UsersTableSkeleton />
+  ) : (
+    <DynamicGrid
+      data={usersWithActions}
+      columns={columnsWithActions}
+      isLoading={false}
+      totalCount={data?.data?.totalCount || 0}
+      pagination={pagination}
+      onPaginationChange={handlePaginationChange}
+    />
+  )}
+  </Paper>
     </Box>
   );
 };
