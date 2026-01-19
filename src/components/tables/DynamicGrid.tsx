@@ -131,7 +131,7 @@ export const DynamicGrid: React.FC<DynamicGridProps> = ({
     muiTableContainerProps: {
       sx: { maxHeight: '600px' },
     },
-    muiTableBodyRowProps: ({ row }) => ({
+    muiTableBodyRowProps: ({  }) => ({
       sx: {
         cursor: 'pointer',
         '&:hover': {
